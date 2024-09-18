@@ -1,0 +1,78 @@
+---
+title: "Sudanese & Diaspora Owned Businesses and Projects Dashboard"
+format: 
+  dashboard:
+    logo: "img/g.gif"
+    orientation: columns
+---
+
+
+```{r loadpackagesdata, echo=FALSE, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(googlesheets4)
+library(janitor)
+library(glue)
+library(tidygeocoder)
+library(leaflet)
+source("geocodedaddresses.R")
+
+ 
+response_ojs <- responses
+
+# responses %>% names
+```
+
+## Column {width=65%}
+### Row {height="70%"}
+
+```{r}
+ 
+leaflet(data = geocoded_responses) %>%
+  addTiles() %>%  # Adds default OpenStreetMap tiles
+  addCircleMarkers(
+    ~longitude, ~latitude,
+    radius = 5,        # Size of the marker
+    color = 'blue',    # Marker color
+    stroke = TRUE,     # Border around the circle
+    fillOpacity = 0.8, # Opacity of the fill color
+    label = ~inputgeocodeaddress,  # Labels with address
+    popup = ~inputgeocodeaddress   # Popup with address
+  ) %>%
+  addMarkers(~longitude, ~latitude, popup = ~glue("{inputgeocodeaddress}"))
+```
+
+
+
+```{r, echo=FALSE, panel="input"}
+ojs_define(responses = responses)
+```
+
+```{ojs}
+//| expandable: false
+
+// Tranpose the data to  make it usable in ojs
+top_bus = transpose(responses)
+
+// Create a dropdown menu of the songs
+
+viewof businessdDopdown = Inputs.select(
+  top_bus.map(d => d.name_of_business_project),
+  {
+    label: "Choose Business",
+    unique: true
+  }
+)
+
+
+```
+
+
+
+### Row {height="20%"}
+:::{.card expandable="false"}
+
+<div style="background-color: #0d807a; color: white; border-radius: 10px; padding: 10px; text-align: center; display: flex; align-items: center; justify-content: center; height: 100%;"> <span style="font-size: 1vw; width: 100%;"> **Did you notice a missing Sudanese-owned business or project?** Add the business or project using this form <a href="`r glue::glue('{surveyform}')`" style="color: white; text-decoration: underline;">here</a>! <br><br>We update submissions to this dashboard within a day or two. <br>For questions or edits, reach us at: <a href="mailto:admin@geotruth.org" style="color: white;">admin@geotruth.org</a> </span> </div> 
+::: 
+
+
