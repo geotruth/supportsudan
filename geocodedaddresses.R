@@ -1,4 +1,10 @@
-
+library(tidyverse)
+library(readxl)
+library(googlesheets4)
+library(janitor)
+library(glue)
+library(tidygeocoder)
+library(leaflet)
 # Set working directory
 "/Users/rashaelnimeiry/Library/Mobile Documents/com~apple~CloudDocs/geotruth"-> working 
 
@@ -18,11 +24,25 @@ read_xlsx(glue('{working}/keys/tokens.xlsx')) %>%
 # Read the Google Sheet
 read_sheet(surveyresponsesurl) %>% 
   # as.data.frame() %>% 
-  janitor::clean_names() ->responses 
+  janitor::clean_names() %>% 
+  mutate(response_id = row_number())->responsesall
+
+# saveRDS(geocoded_responses %>% head(2), 'responses.RDS')
+read_rds('responses.RDS') %>% 
+  select(response_id, everything())->responsesold
+
+
+# find which are new to geocode -------------------------------------------
 
 
 
-responses %>%
+responsesall %>% 
+  filter(!(response_id %in% responsesold$response_id))->newresponsestogeocode
+
+if(nrow(newresponsestogeocode)==0){
+  responsesold->responses
+  } else if (nrow(newresponsestogeocode)>0){
+newresponsestogeocode %>%
   head() %>%
   mutate(
     postal_code = as.numeric(postal_code),
@@ -34,4 +54,14 @@ responses %>%
       TRUE ~ complete_physical_address_of_business_project
     )
   ) %>% 
-  geocode(address = inputgeocodeaddress, method = 'osm', lat = latitude, long = longitude, return_addresses = TRUE) ->geocoded_responses
+  geocode(address = inputgeocodeaddress, method = 'osm', lat = latitude, long = longitude, return_addresses = TRUE
+          ) ->geocoded_responses
+
+
+geocoded_responses %>% 
+  rbind(responsesold) %>%
+  distinct(response_id, .keep_all = T)-> responses
+
+
+saveRDS(responses, 'responses.RDS')
+}

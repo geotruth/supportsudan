@@ -28,7 +28,7 @@ response_ojs <- responses
 
 ```{r}
  
-leaflet(data = geocoded_responses) %>%
+leaflet(data = responses) %>%
   addTiles() %>%  # Adds default OpenStreetMap tiles
   addCircleMarkers(
     ~longitude, ~latitude,
