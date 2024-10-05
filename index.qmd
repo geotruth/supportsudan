@@ -18,6 +18,6 @@ By supporting this site, you’re helping people who’ve lost their homes and j
 
 <br>
 
-🔗 [Explore the Dashboard ➡️]( dashboard.html)
+🔗 [Explore the Dashboard ➡️](dashboard.html)
 
 </big>

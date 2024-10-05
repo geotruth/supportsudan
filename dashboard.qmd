@@ -24,11 +24,12 @@ response_ojs <- responses
 # responses %>% names
 ```
 
-## Column {width=65%}
+## Column {width=85%}
 ### Row {height="70%"}
 
-```{r}
+```{r leafletmap}
  
+# Initialize leaflet map
 leaflet(data = responses) %>%
   addTiles() %>%  # Adds default OpenStreetMap tiles
   addCircleMarkers(
@@ -39,143 +40,95 @@ leaflet(data = responses) %>%
     fillOpacity = 0.8, # Opacity of the fill color
     label = ~inputgeocodeaddress,  # Labels with address
     popup = ~inputgeocodeaddress   # Popup with address
-  ) %>%
-  addMarkers(~longitude, ~latitude, popup = ~glue("{inputgeocodeaddress}"))
-```
+  )
 
 
-```{r, echo=FALSE, include=FALSE}
-library(gt)
-
-# Verify if responses data is loaded correctly
 
 
-# Create gt table
- responses %>%
+
+
+
+# Create gt table for full dataset
+responses %>%
   select(
-    response_id,
-    timestamp,
-    email_address,
-    business_or_project,
-    online_business_project,
-    name_of_business_project,
-    business_project_website,
-    short_business_project_description,
-    long_business_project_and_or_mission,
-    category_of_business_or_project,
-    language_spoken,
-    complete_physical_address_of_business_project,
-    city_location_of_business_project,
-    state_region_location_of_business_project,
-    country_of_business_project,
-    email_of_business_project,
-    phone_number_for_business_project,
-    facebook_link_of_business_project,
-    instagram_handle_of_business_project,
-    twitter_x_handle,
-    link_to_funding_donate_page,
-    type_of_support_needed,
-    additional_support_needs,
-    current_business_project_status,
-    key_challenges_facing_your_business_project,
-    as_a_business_project_owner_are_you_in_urgent_need_of_emergency_assistance,
-    type_of_urgency,
-    business_project_information_entered_is_up_to_date_as_of,
-    notes_or_comments,
-    feedback,
-    business_project_logo_and_or_image_url,
-    postal_code,
-    consent_for_use_of_unidentifiable_information,
-    consent_to_highlight_business_owners,
-    inputgeocodeaddress,
-    address,
-    latitude,
-    longitude
+    response_id, timestamp, email_address, business_or_project,
+    name_of_business_project, business_project_website,
+    short_business_project_description, category_of_business_or_project,
+    city_location_of_business_project, country_of_business_project
   ) %>%
   gt() %>%
-  tab_header(
-    title = "Sudanese & Diaspora Owned Businesses and Projects"
+  tab_header(title = "Sudanese & Diaspora Owned Businesses and Projects") %>%
+  fmt_missing(columns = everything(), missing_text = "NA") -> responses_gt# Create gt table for full dataset
+responses %>%
+  select(
+    response_id, timestamp, email_address, business_or_project,
+    name_of_business_project, business_project_website,
+    short_business_project_description, category_of_business_or_project,
+    city_location_of_business_project, country_of_business_project
   ) %>%
-  cols_label(
-    response_id = "Response ID",
-    timestamp = "Timestamp",
-    email_address = "Email Address",
-    business_or_project = "Business/Project",
-    online_business_project = "Online Business/Project",
-    name_of_business_project = "Name of Business/Project",
-    business_project_website = "Business Project Website",
-    short_business_project_description = "Short Description",
-    long_business_project_and_or_mission = "Long Description/Mission",
-    category_of_business_or_project = "Category",
-    language_spoken = "Language Spoken",
-    complete_physical_address_of_business_project = "Complete Address",
-    city_location_of_business_project = "City",
-    state_region_location_of_business_project = "State/Region",
-    country_of_business_project = "Country",
-    email_of_business_project = "Business Email",
-    phone_number_for_business_project = "Business Phone",
-    facebook_link_of_business_project = "Facebook Link",
-    instagram_handle_of_business_project = "Instagram Handle",
-    twitter_x_handle = "Twitter Handle",
-    link_to_funding_donate_page = "Funding/Donate Page",
-    type_of_support_needed = "Type of Support Needed",
-    additional_support_needs = "Additional Support Needs",
-    current_business_project_status = "Current Status",
-    key_challenges_facing_your_business_project = "Key Challenges",
-    as_a_business_project_owner_are_you_in_urgent_need_of_emergency_assistance = "Urgent Need of Assistance",
-    type_of_urgency = "Type of Urgency",
-    business_project_information_entered_is_up_to_date_as_of = "Information Up-to-date As Of",
-    notes_or_comments = "Notes/Comments",
-    feedback = "Feedback",
-    business_project_logo_and_or_image_url = "Business Logo/Image URL",
-    postal_code = "Postal Code",
-    consent_for_use_of_unidentifiable_information = "Consent for Use of Unidentifiable Information",
-    consent_to_highlight_business_owners = "Consent to Highlight Owners",
-    inputgeocodeaddress = "Geocode Address",
-    address = "Address",
-    latitude = "Latitude",
-    longitude = "Longitude"
-  ) %>%
-  fmt_missing(
-    columns = everything(),
-    missing_text = "NA"
-  )-> responses_gt 
-
-
+  gt() %>%
+  tab_header(title = "Sudanese & Diaspora Owned Businesses and Projects") %>%
+  fmt_missing(columns = everything(), missing_text = "NA") -> responses_gt
 
 ```
 
-```{r, echo=FALSE, panel="input"}
+```{r defineinputresponses,include=FALSE, echo=FALSE, panel="input"}
+
+
+# Observable Inputs bind
 ojs_define(responses = responses)
-responses_gt
+
 
 ```
+
+
+
+### Row {height="30%"}
+
+
 
 ```{ojs}
 //| expandable: false
 
-// Tranpose the data to  make it usable in ojs
-top_bus = transpose(responses)
+// Transpose the data for easier mapping
+top_bus = transpose(responses);
 
-// Create a dropdown menu of the songs
+// Dropdown menu for business or project
+viewof countryDropdown = Inputs.select(
+  Array.from(new Set(top_bus.map(d => d.country_of_business_project))),
+  { label: "Country", unique: true }
+);
 
-viewof businessdDopdown = Inputs.select(
-  top_bus.map(d => d.name_of_business_project),
-  {
-    label: "Choose Business",
-    unique: true
-  }
-)
+
+
+// Dropdown menu for business or project
+viewof projectDropdown = Inputs.select(
+  Array.from(new Set(top_bus.map(d => d.business_or_project))),
+  { label: "Business or Project", unique: true }
+);
+
+
+// Dropdown menu for category of business or project
+viewof categoryDropdown = Inputs.select(
+  Array.from(new Set(top_bus.map(d => d.category_of_business_or_project))),
+  { label: "Category", unique: true }
+);
+
+
+// Dropdown for business name, filtered by selected project
+viewof businessDropdown = Inputs.select(
+  top_bus.filter(d => d.business_or_project === projectDropdown)
+    .map(d => d.name_of_business_project),
+  { label: "Name Business or Project", unique: true }
+);
+
 
 
 ```
 
-
-
-### Row {height="20%"}
+## Column {width=25%}
 :::{.card expandable="false"}
 
 <div style="background-color: #0d807a; color: white; border-radius: 10px; padding: 10px; text-align: center; display: flex; align-items: center; justify-content: center; height: 100%;"> <span style="font-size: 1vw; width: 100%;"> **Did you notice a missing Sudanese-owned business or project?** Add the business or project using this form <a href="`r glue::glue('{surveyform}')`" style="color: white; text-decoration: underline;">here</a>! <br><br>We update submissions to this dashboard within a day or two. <br>For questions or edits, reach us at: <a href="mailto:admin@geotruth.org" style="color: white;">admin@geotruth.org</a> </span> </div> 
 ::: 
-
 

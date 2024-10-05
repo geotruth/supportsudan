@@ -38,9 +38,11 @@ read_rds('responses.RDS') %>%
 
 responsesall %>% 
   filter(!(response_id %in% responsesold$response_id))->newresponsestogeocode
+# responsesall ->newresponsestogeocode
 
 if(nrow(newresponsestogeocode)==0){
-  responsesold->responses
+  responsesold->responses; 
+  print("no new businesses to add")
   } else if (nrow(newresponsestogeocode)>0){
 newresponsestogeocode %>%
   head() %>%
@@ -64,4 +66,6 @@ geocoded_responses %>%
 
 
 saveRDS(responses, 'responses.RDS')
-}
+# saveRDS(responsesall, 'responses.RDS')
+glue::glue("added {newresponsestogeocode %>% nrow} new businesses")
+  }
