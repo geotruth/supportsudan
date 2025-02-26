@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://geotruth.github.io/dashboard.html</loc>
-    <lastmod>2025-02-26T02:50:00.713Z</lastmod>
-  </url>
-  <url>
     <loc>https://geotruth.github.io/index.html</loc>
-    <lastmod>2025-02-26T02:50:00.726Z</lastmod>
+    <lastmod>2025-02-26T03:22:30.003Z</lastmod>
   </url>
   <url>
     <loc>https://geotruth.github.io/about.html</loc>
-    <lastmod>2025-02-26T02:50:00.564Z</lastmod>
+    <lastmod>2025-02-26T03:22:29.842Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geotruth.github.io/dashboard.html</loc>
+    <lastmod>2025-02-26T03:22:29.990Z</lastmod>
   </url>
 </urlset>
